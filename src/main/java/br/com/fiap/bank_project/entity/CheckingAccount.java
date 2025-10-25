@@ -1,35 +1,51 @@
 package br.com.fiap.bank_project.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(name = "tb_checking_account")
 public class CheckingAccount extends Bank implements Serializable {
 
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "SEQ_CHECKING_ACCOUNT"
+    )
+    @SequenceGenerator(
+            name = "SEQ_CHECKING_ACCOUNT",
+            sequenceName = "SEQ_CHECKING_ACCOUNT",
+            allocationSize = 1
+    )
     private Long id;
-    private double expense;
+
+    @Column(nullable = true, precision = 15, scale = 2)
+    private BigDecimal expense;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    @Column(nullable = false)
     private User user;
 
     public CheckingAccount() {}
 
 
-    public CheckingAccount(double balance, double expense, User user) {
+    public CheckingAccount(BigDecimal balance, BigDecimal expense, User user) {
         super(balance);
         this.expense = expense;
         this.user = user;
     }
 
     @Override
-    protected void deposit(double value) {
+    protected void deposit(BigDecimal value) {
 
     }
 
     @Override
-    protected void withdraw(double value) {
+    protected void withdraw(BigDecimal value) {
 
     }
 
@@ -41,11 +57,11 @@ public class CheckingAccount extends Bank implements Serializable {
         this.id = id;
     }
 
-    public double getExpense() {
+    public BigDecimal getExpense() {
         return expense;
     }
 
-    public void setExpense(double expense) {
+    public void setExpense(BigDecimal expense) {
         this.expense = expense;
     }
 
