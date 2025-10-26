@@ -35,6 +35,12 @@ public class UserController {
         service.delete(cpf);
     }
 
+    @PutMapping("{cpf}")
+    @ResponseStatus(OK)
+    public User update(@RequestBody User user,@PathVariable String cpf) {
+        return service.update(user,cpf);
+    }
+
     @GetMapping
     public List<User> findAll(User user) {
         return service.findAll(user);
