@@ -3,6 +3,7 @@ package br.com.fiap.bank_project.service.serviceImpl;
 import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.repository.UserRepository;
 import br.com.fiap.bank_project.service.UserService;
+import org.apache.el.stream.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -43,5 +44,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAll() {
         return List.of();
+    }
+
+    public User findByCpf(String cpf) {
+        if(!userRepository.existsByCpf(cpf)) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
+        return userRepository.findByCpf(cpf)
+                .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST));
     }
 }
