@@ -24,6 +24,12 @@ public class UserController {
         return service.save(user);
     }
 
-   
+    @GetMapping("{cpf}")
+    @ResponseStatus(OK)
+    public User findByCpf(@PathVariable String cpf) {
+        return service.findByCpf(cpf);
+    }
+
+    
 
 }
