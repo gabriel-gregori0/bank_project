@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/user")
@@ -28,6 +27,12 @@ public class UserController {
     @ResponseStatus(OK)
     public User findByCpf(@PathVariable String cpf) {
         return service.findByCpf(cpf);
+    }
+
+    @DeleteMapping("{cpf}")
+    @ResponseStatus(NO_CONTENT)
+    public void delete(@PathVariable String cpf) {
+        service.delete(cpf);
     }
 
     @GetMapping
