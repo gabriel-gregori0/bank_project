@@ -10,5 +10,5 @@ public interface UserService {
     public User update(User user, String cpf);
     public void delete(String cpf);
     public User findByCpf(String cpf);
-    public List<User> findAll();
+    public List<User> findAll(User user);
 }

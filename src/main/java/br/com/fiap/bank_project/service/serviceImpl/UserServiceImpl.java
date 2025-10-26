@@ -3,13 +3,15 @@ package br.com.fiap.bank_project.service.serviceImpl;
 import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.repository.UserRepository;
 import br.com.fiap.bank_project.service.UserService;
-import org.apache.el.stream.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+import static org.springframework.data.domain.ExampleMatcher.StringMatcher.CONTAINING;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -58,8 +60,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAll() {
-        return List.of();
+    public List<User> findAll(User user) {
+        ExampleMatcher exampleMatcher = ExampleMatcher
+                .matching()
+                .withIgnoreCase()
+                .withStringMatcher(CONTAINING);
+        Example<User> example = Example.of(user, exampleMatcher);
+
+        return userRepository.findAll(example);
     }
 
     @Override
