@@ -8,7 +8,7 @@ public interface UserService {
 
     public User save(User user);
     public User update(User user, String cpf);
-    public String delete(String cpf);
+    public void delete(String cpf);
     public User findByCpf(String cpf);
     public List<User> findAll();
 }

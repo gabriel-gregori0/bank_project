@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -41,12 +42,19 @@ public class UserServiceImpl implements UserService {
                     found.setCpf(user.getCpf());
                     return userRepository.save(user);
                 }).orElseThrow(() -> new ResponseStatusException(BAD_REQUEST));
-        
+
     }
 
     @Override
-    public String delete(String cpf) {
-        return "";
+    public void delete(String cpf) {
+        if (!userRepository.existsByCpf(cpf)) {
+            throw new ResponseStatusException(NOT_FOUND);
+        }
+        userRepository.findByCpf(cpf)
+                .map(user -> {
+                    userRepository.delete(user);
+                    return user;
+                }).orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
     @Override
