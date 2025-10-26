@@ -5,8 +5,11 @@ import br.com.fiap.bank_project.repository.UserRepository;
 import br.com.fiap.bank_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -20,7 +23,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user) {
-        return null;
+        if(userRepository.existsByCpf(user.getCpf())) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        } else {
+            return userRepository.save(user);
+        }
     }
 
     @Override
