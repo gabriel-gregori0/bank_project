@@ -30,6 +30,9 @@ public class UserController {
         return service.findByCpf(cpf);
     }
 
-    
+    @GetMapping
+    public List<User> findAll(User user) {
+        return service.findAll(user);
+    }
 
 }
