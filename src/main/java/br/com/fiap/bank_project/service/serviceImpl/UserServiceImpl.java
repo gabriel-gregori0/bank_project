@@ -33,7 +33,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user, String cpf) {
-        return null;
+        if(!userRepository.existsByCpf(cpf)) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
+        return userRepository.findByCpf(cpf)
+                .map(found -> {
+                    found.setCpf(user.getCpf());
+                    return userRepository.save(user);
+                }).orElseThrow(() -> new ResponseStatusException(BAD_REQUEST));
+        
     }
 
     @Override
@@ -46,6 +54,7 @@ public class UserServiceImpl implements UserService {
         return List.of();
     }
 
+    @Override
     public User findByCpf(String cpf) {
         if(!userRepository.existsByCpf(cpf)) {
             throw new ResponseStatusException(BAD_REQUEST);
