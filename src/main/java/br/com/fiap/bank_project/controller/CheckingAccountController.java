@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/checking")
@@ -29,5 +28,11 @@ public class CheckingAccountController {
     public CheckingAccount update(@RequestBody CheckingAccount account,
                                   @PathVariable String cpf) {
         return service.update(cpf,account);
+    }
+
+    @DeleteMapping("/{cpf}")
+    @ResponseStatus(NO_CONTENT)
+    public void delete(@PathVariable String cpf) {
+        service.delete(cpf);
     }
 }
