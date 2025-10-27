@@ -44,7 +44,9 @@ public class SavingsAccountImpl implements SavingsAccountService {
     }
 
     @Override
-    public void delete(String cpf) {
+    public void delete(SavingsAccount account) {
+        SavingsAccount found = findByCpf(account);
+        accountRepository.delete(found);
 
     }
 

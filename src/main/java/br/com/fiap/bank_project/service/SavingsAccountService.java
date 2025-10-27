@@ -8,6 +8,6 @@ public interface SavingsAccountService {
 
     public SavingsAccount save(SavingsAccount account);
     public SavingsAccount update(SavingsAccount account, SavingsAccount newAccount);
-    public void delete(String cpf);
+    public void delete(SavingsAccount account);
     public List<SavingsAccount> findAll(SavingsAccount user);
 }
