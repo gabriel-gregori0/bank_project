@@ -42,7 +42,7 @@ public class SavingsAccountImpl implements SavingsAccountService {
     public SavingsAccount save(SavingsAccount savingsAccount) {
         User userFound = findByCpf(savingsAccount.getUser().getCpf());
         CheckingAccount accountFound = findByCheckingAccount(savingsAccount.getCheckingAccount().getUser().getCpf());
-        
+
         Optional<SavingsAccount> existingAccount = savingsAccountRepository.findByUser(userFound);
         if (existingAccount.isPresent()) {
             throw new ResponseStatusException(BAD_REQUEST,"Usuário já possui uma conta corrente!");
@@ -60,8 +60,7 @@ public class SavingsAccountImpl implements SavingsAccountService {
 
     @Override
     public SavingsAccount update(String cpf, SavingsAccount newAccount) {
-        SavingsAccount account = findAccountByCpf(cpf);
-        return savingsAccountRepository.findByUser_Cpf(account.getUser().getCpf())
+        return savingsAccountRepository.findByUser_Cpf(cpf)
                 .map(found -> {
                     found.setInvestment(newAccount.getInvestment());
                     found.setTransference(newAccount.getTransference());

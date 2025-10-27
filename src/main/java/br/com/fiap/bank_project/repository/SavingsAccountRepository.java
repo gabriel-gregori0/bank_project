@@ -13,5 +13,4 @@ public interface SavingsAccountRepository extends JpaRepository<SavingsAccount,L
 
     Optional<SavingsAccount> findByUser_Cpf(String cpf);
     Optional<SavingsAccount> findByUser(User userFound);
-    Optional<SavingsAccount> findByCheckingAccount(CheckingAccount account);
 }
