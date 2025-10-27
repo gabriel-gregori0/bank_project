@@ -31,7 +31,7 @@ public class SavingsAccountImpl implements SavingsAccountService {
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
     }
-    
+
     @Override
     public SavingsAccount save(String cpf) {
       SavingsAccount newAccount = findAccountByCpf(cpf);
