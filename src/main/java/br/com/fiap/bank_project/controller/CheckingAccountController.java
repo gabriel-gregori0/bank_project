@@ -5,9 +5,12 @@ import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.service.CheckingAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -41,5 +44,17 @@ public class CheckingAccountController {
     @GetMapping
     public List<CheckingAccount> findAll(CheckingAccount account) {
         return service.findAll(account);
+    }
+
+    @PatchMapping("/{cpf}/withdraw")
+    public ResponseEntity<String> withdraw(
+            @PathVariable String cpf,
+            @RequestBody Map<String, BigDecimal> requestBody) {
+
+        BigDecimal value = requestBody.get("value");
+
+        service.withdraw(cpf, value);
+
+        return ResponseEntity.ok("Você retirou: " + value + "R$");
     }
 }
