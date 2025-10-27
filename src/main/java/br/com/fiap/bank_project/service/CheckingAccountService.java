@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CheckingAccountService {
 
-    public CheckingAccount save(String cpf);
+    public CheckingAccount save(CheckingAccount account);
     public CheckingAccount update(String cpf, CheckingAccount newAccount);
     public void delete(String cpf);
     public List<CheckingAccount> findAll(CheckingAccount account);

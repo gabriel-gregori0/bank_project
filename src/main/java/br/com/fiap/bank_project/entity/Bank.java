@@ -20,12 +20,11 @@ public abstract class Bank implements Serializable {
     protected abstract void withdraw(BigDecimal value);
 
 
-    protected BigDecimal getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    protected void setBalance(BigDecimal balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
-
 }

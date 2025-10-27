@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -30,9 +32,19 @@ public class CheckingAccountImpl implements CheckingAccountService {
 
 
     @Override
-    public CheckingAccount save(String cpf) {
-        CheckingAccount account = findAccountByCpf(cpf);
-        return checkingAccountRepository.save(account);
+    public CheckingAccount save(CheckingAccount account) {
+        User userFound = findByCpf(account.getUser().getCpf());
+
+        Optional<CheckingAccount> existingAccount = checkingAccountRepository.findByUser(userFound);
+        if (existingAccount.isPresent()) {
+            throw new RuntimeException("Usuário já possui uma conta corrente!");
+        } else {
+            account.setUser(userFound);
+
+            if (account.getBalance() == null) account.setBalance(BigDecimal.ZERO);
+            if (account.getExpense() == null) account.setExpense(BigDecimal.ZERO);
+            return checkingAccountRepository.save(account);
+        }
     }
 
     @Override

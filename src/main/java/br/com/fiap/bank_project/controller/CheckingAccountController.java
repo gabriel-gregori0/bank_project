@@ -1,7 +1,9 @@
 package br.com.fiap.bank_project.controller;
 
 import br.com.fiap.bank_project.entity.CheckingAccount;
+import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.service.CheckingAccountService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,11 +13,12 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/api/checking")
 public class CheckingAccountController {
 
+    @Autowired
     private CheckingAccountService service;
 
-    @PostMapping("/{cpf}")
+    @PostMapping()
     @ResponseStatus(CREATED)
-    public CheckingAccount create(@PathVariable  String cpf) {
-        return service.save(cpf);
+    public CheckingAccount create(@RequestBody CheckingAccount account) {
+        return service.save(account);
     }
 }
