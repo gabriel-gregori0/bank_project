@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
@@ -37,7 +38,7 @@ public class CheckingAccountImpl implements CheckingAccountService {
 
         Optional<CheckingAccount> existingAccount = checkingAccountRepository.findByUser(userFound);
         if (existingAccount.isPresent()) {
-            throw new RuntimeException("Usuário já possui uma conta corrente!");
+            throw new ResponseStatusException(BAD_REQUEST,"Usuário já possui uma conta corrente!");
         } else {
             account.setUser(userFound);
 
