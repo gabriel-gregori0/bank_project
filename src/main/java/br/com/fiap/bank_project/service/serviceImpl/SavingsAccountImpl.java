@@ -12,33 +12,35 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @Service
 public class SavingsAccountImpl implements SavingsAccountService {
 
     private final SavingsAccountRepository accountRepository;
-    private final UserRepository userRepository;
 
     @Autowired
-    public SavingsAccountImpl(
-            SavingsAccountRepository accountRepository,
-            UserRepository userRepository
-    ) {
+    public SavingsAccountImpl(SavingsAccountRepository accountRepository) {
         this.accountRepository = accountRepository;
-        this.userRepository = userRepository;
     }
 
 
     @Override
-    public SavingsAccount save(SavingsAccount account,String cpf) {
-      User user = findByCpf(cpf);
-      account.setUser(user);
-
-      return accountRepository.save(account);
+    public SavingsAccount save(SavingsAccount account) {
+      SavingsAccount newAccount = findByCpf(account);
+      return accountRepository.save(newAccount);
     }
 
     @Override
-    public SavingsAccount update(SavingsAccount account, String cpf) {
-        return null;
+    public SavingsAccount update(SavingsAccount account, SavingsAccount newAccount) {
+        return accountRepository.findByCpf(account.getUser().getCpf())
+                .map(found -> {
+                    found.setInvestment(newAccount.getInvestment());
+                    found.setTransference(newAccount.getTransference());
+                    return accountRepository.save(found);
+                }).orElseThrow(() ->
+                new ResponseStatusException(NOT_FOUND,
+                        "CPF não encontrado"));
     }
 
     @Override
@@ -51,8 +53,8 @@ public class SavingsAccountImpl implements SavingsAccountService {
         return List.of();
     }
 
-    private User findByCpf(String cpf) {
-        return userRepository.findByCpf(cpf)
+    private SavingsAccount findByCpf(SavingsAccount account) {
+        return accountRepository.findByCpf(account.getUser().getCpf())
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Usuário não encontrado"));
