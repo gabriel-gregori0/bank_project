@@ -43,7 +43,11 @@ public class CheckingAccount extends Bank implements Serializable {
 
     @Override
     public void deposit(BigDecimal value) {
-
+        if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(BAD_REQUEST,"Valor Incorreto!");
+        } else {
+            this.balance = this.balance.add(value);
+        }
     }
 
     @Override

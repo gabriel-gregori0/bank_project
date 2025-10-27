@@ -95,6 +95,16 @@ public class CheckingAccountImpl implements CheckingAccountService {
 
     }
 
+    public void deposit(String cpf,BigDecimal value) {
+        CheckingAccount userFound = checkingAccountRepository
+                .findByUser_Cpf(cpf)
+                .orElseThrow(() ->
+                        new ResponseStatusException(NOT_FOUND,"CPF não encontrado"));
+
+        userFound.deposit(value);
+        checkingAccountRepository.save(userFound);
+    }
+
     private CheckingAccount findAccountByCpf(String cpf) {
         User userFound = findByCpf(cpf);
         CheckingAccount account = new CheckingAccount();
