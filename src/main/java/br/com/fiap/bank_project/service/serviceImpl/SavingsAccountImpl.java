@@ -72,7 +72,9 @@ public class SavingsAccountImpl implements SavingsAccountService {
 
     @Override
     public void delete(String cpf) {
-        SavingsAccount found = findAccountByCpf(cpf);
+        SavingsAccount found = savingsAccountRepository.findByUser_Cpf(cpf)
+                        .orElseThrow(() ->
+                                new ResponseStatusException(NOT_FOUND,"CPF não encontrado!"));
         savingsAccountRepository.delete(found);
     }
 
@@ -86,17 +88,7 @@ public class SavingsAccountImpl implements SavingsAccountService {
 
         return savingsAccountRepository.findAll(example);
     }
-
-    private SavingsAccount findAccountByCpf(String cpf) {
-        User userFound = findByCpf(cpf);
-        SavingsAccount account = new SavingsAccount();
-        account.setUser(userFound);
-
-        return savingsAccountRepository.findByUser_Cpf(account.getUser().getCpf())
-                .orElseThrow(() ->
-                        new ResponseStatusException(NOT_FOUND,
-                                "Usuário não encontrado"));
-    }
+    
 
     private User findByCpf(String cpf) {
         return userRepository.findByCpf(cpf)
