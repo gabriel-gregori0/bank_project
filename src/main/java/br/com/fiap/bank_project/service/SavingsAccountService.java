@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface SavingsAccountService {
 
-    public SavingsAccount save(SavingsAccount account);
-    public SavingsAccount update(SavingsAccount account, SavingsAccount newAccount);
-    public void delete(SavingsAccount account);
+    public SavingsAccount save(String cpf);
+    public SavingsAccount update(String cpf, SavingsAccount newAccount);
+    public void delete(String cpf);
     public List<SavingsAccount> findAll(SavingsAccount user);
 }

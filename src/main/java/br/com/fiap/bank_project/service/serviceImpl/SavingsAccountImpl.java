@@ -22,21 +22,25 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class SavingsAccountImpl implements SavingsAccountService {
 
     private final SavingsAccountRepository accountRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public SavingsAccountImpl(SavingsAccountRepository accountRepository) {
+    public SavingsAccountImpl(
+            SavingsAccountRepository accountRepository,
+            UserRepository userRepository) {
         this.accountRepository = accountRepository;
+        this.userRepository = userRepository;
     }
-
-
+    
     @Override
-    public SavingsAccount save(SavingsAccount account) {
-      SavingsAccount newAccount = findByCpf(account);
+    public SavingsAccount save(String cpf) {
+      SavingsAccount newAccount = findAccountByCpf(cpf);
       return accountRepository.save(newAccount);
     }
 
     @Override
-    public SavingsAccount update(SavingsAccount account, SavingsAccount newAccount) {
+    public SavingsAccount update(String cpf, SavingsAccount newAccount) {
+        SavingsAccount account = findAccountByCpf(cpf);
         return accountRepository.findByCpf(account.getUser().getCpf())
                 .map(found -> {
                     found.setInvestment(newAccount.getInvestment());
@@ -48,8 +52,8 @@ public class SavingsAccountImpl implements SavingsAccountService {
     }
 
     @Override
-    public void delete(SavingsAccount account) {
-        SavingsAccount found = findByCpf(account);
+    public void delete(String cpf) {
+        SavingsAccount found = findAccountByCpf(cpf);
         accountRepository.delete(found);
     }
 
@@ -64,8 +68,19 @@ public class SavingsAccountImpl implements SavingsAccountService {
         return accountRepository.findAll(example);
     }
 
-    private SavingsAccount findByCpf(SavingsAccount account) {
+    private SavingsAccount findAccountByCpf(String cpf) {
+        User userFound = findByCpf(cpf);
+        SavingsAccount account = new SavingsAccount();
+        account.setUser(userFound);
+
         return accountRepository.findByCpf(account.getUser().getCpf())
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado"));
+    }
+
+    private User findByCpf(String cpf) {
+        return userRepository.findByCpf(cpf)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Usuário não encontrado"));
