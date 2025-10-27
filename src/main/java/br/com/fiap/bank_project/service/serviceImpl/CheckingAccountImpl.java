@@ -50,7 +50,14 @@ public class CheckingAccountImpl implements CheckingAccountService {
 
     @Override
     public CheckingAccount update(String cpf, CheckingAccount newAccount) {
-        return null;
+        return  checkingAccountRepository
+                .findByUser_Cpf(cpf)
+                .map(found -> {
+                    found.setBalance(newAccount.getBalance());
+                    found.setExpense(newAccount.getExpense());
+                    return checkingAccountRepository.save(found);
+                }).orElseThrow(()->
+                        new ResponseStatusException(NOT_FOUND,"CPF não encontrado"));
     }
 
     @Override
