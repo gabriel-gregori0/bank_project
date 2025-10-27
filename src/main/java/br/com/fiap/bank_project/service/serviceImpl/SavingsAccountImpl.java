@@ -6,12 +6,16 @@ import br.com.fiap.bank_project.repository.SavingsAccountRepository;
 import br.com.fiap.bank_project.repository.UserRepository;
 import br.com.fiap.bank_project.service.SavingsAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+import static org.springframework.data.domain.ExampleMatcher.StringMatcher.CONTAINING;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
@@ -47,12 +51,17 @@ public class SavingsAccountImpl implements SavingsAccountService {
     public void delete(SavingsAccount account) {
         SavingsAccount found = findByCpf(account);
         accountRepository.delete(found);
-
     }
 
     @Override
-    public List<SavingsAccount> findAll(SavingsAccount user) {
-        return List.of();
+    public List<SavingsAccount> findAll(SavingsAccount account) {
+        ExampleMatcher exampleMatcher = ExampleMatcher
+                .matching()
+                .withIgnoreCase()
+                .withStringMatcher(CONTAINING);
+        Example<SavingsAccount> example = Example.of(account, exampleMatcher);
+
+        return accountRepository.findAll(example);
     }
 
     private SavingsAccount findByCpf(SavingsAccount account) {
