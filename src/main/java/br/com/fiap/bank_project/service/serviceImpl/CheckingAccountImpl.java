@@ -29,7 +29,8 @@ public class CheckingAccountImpl implements CheckingAccountService {
 
     @Override
     public CheckingAccount save(String cpf) {
-        return null;
+        CheckingAccount account = findAccountByCpf(cpf);
+        return checkingAccountRepository.save(account);
     }
 
     @Override
