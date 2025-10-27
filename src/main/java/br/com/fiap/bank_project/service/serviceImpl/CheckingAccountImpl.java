@@ -62,7 +62,12 @@ public class CheckingAccountImpl implements CheckingAccountService {
 
     @Override
     public void delete(String cpf) {
+        CheckingAccount account = checkingAccountRepository
+                .findByUser_Cpf(cpf)
+                .orElseThrow(() ->
+                        new ResponseStatusException(NOT_FOUND,"CPF não encontrado!"));
 
+        checkingAccountRepository.delete(account);
     }
 
     @Override
