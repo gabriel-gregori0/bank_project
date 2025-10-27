@@ -30,7 +30,10 @@ public class SavingsAccountImpl implements SavingsAccountService {
 
     @Override
     public SavingsAccount save(SavingsAccount account,String cpf) {
-      return null;
+      User user = findByCpf(cpf);
+      account.setUser(user);
+
+      return accountRepository.save(account);
     }
 
     @Override
