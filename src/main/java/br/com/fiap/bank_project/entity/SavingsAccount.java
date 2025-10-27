@@ -50,12 +50,12 @@ public class SavingsAccount extends Bank implements Serializable {
     }
 
     @Override
-    protected void deposit(BigDecimal value) {
+    public void deposit(BigDecimal value) {
 
     }
 
     @Override
-    protected void withdraw(BigDecimal value) {
+    public void withdraw(BigDecimal value) {
 
     }
 

@@ -16,8 +16,8 @@ public abstract class Bank implements Serializable {
         this.balance = balance;
     }
 
-    protected abstract void deposit(BigDecimal value);
-    protected abstract void withdraw(BigDecimal value);
+    public abstract void deposit(BigDecimal value);
+    public abstract void withdraw(BigDecimal value);
 
 
     public BigDecimal getBalance() {
