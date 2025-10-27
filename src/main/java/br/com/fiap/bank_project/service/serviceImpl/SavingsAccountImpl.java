@@ -48,5 +48,10 @@ public class SavingsAccountImpl implements SavingsAccountService {
         return List.of();
     }
 
-    
+    private User findByCpf(String cpf) {
+        return userRepository.findByCpf(cpf)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado"));
+    }
 }
