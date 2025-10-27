@@ -30,7 +30,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(User user) {
         if(userRepository.existsByCpf(user.getCpf())) {
-            throw new ResponseStatusException(BAD_REQUEST);
+            throw new ResponseStatusException(BAD_REQUEST,
+                    "Usuário já cadastrado!");
         } else {
             return userRepository.save(user);
         }
@@ -44,19 +45,20 @@ public class UserServiceImpl implements UserService {
                     found.setEmail(user.getEmail());
                     return userRepository.save(found);
                 })
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Usuário não encontrado"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(NOT_FOUND,
+                                "Usuário não encontrado"));
     }
 
     @Override
     public void delete(String cpf) {
-        if (!userRepository.existsByCpf(cpf)) {
-            throw new ResponseStatusException(NOT_FOUND);
-        }
-        userRepository.findByCpf(cpf)
-                .map(user -> {
-                    userRepository.delete(user);
-                    return user;
-                }).orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        User user = userRepository.findByCpf(cpf)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado"));
+
+        userRepository.delete(user);
+
     }
 
     @Override
@@ -72,11 +74,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByCpf(String cpf) {
-        Optional<User> user = userRepository.findByCpf(cpf);
-        if(!user.isPresent()) {
-            throw new ResponseStatusException(BAD_REQUEST);
-        }
         return userRepository.findByCpf(cpf)
-                .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado"));
     }
 }
