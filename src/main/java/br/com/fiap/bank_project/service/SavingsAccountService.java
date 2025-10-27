@@ -1,0 +1,13 @@
+package br.com.fiap.bank_project.service;
+
+import br.com.fiap.bank_project.entity.SavingsAccount;
+
+import java.util.List;
+
+public interface SavingsAccountService {
+
+    public SavingsAccount save(SavingsAccount account,String cpf);
+    public SavingsAccount update(SavingsAccount account, String cpf);
+    public void delete(String cpf);
+    public List<SavingsAccount> findAll(SavingsAccount user);
+}
