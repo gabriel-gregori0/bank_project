@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -34,5 +36,10 @@ public class CheckingAccountController {
     @ResponseStatus(NO_CONTENT)
     public void delete(@PathVariable String cpf) {
         service.delete(cpf);
+    }
+
+    @GetMapping
+    public List<CheckingAccount> findAll(CheckingAccount account) {
+        return service.findAll(account);
     }
 }
