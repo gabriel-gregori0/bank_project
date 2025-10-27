@@ -1,12 +1,13 @@
 package br.com.fiap.bank_project.service.serviceImpl;
 
 import br.com.fiap.bank_project.entity.CheckingAccount;
-import br.com.fiap.bank_project.entity.SavingsAccount;
 import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.repository.CheckingAccountRepository;
 import br.com.fiap.bank_project.repository.UserRepository;
 import br.com.fiap.bank_project.service.CheckingAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.data.domain.ExampleMatcher.StringMatcher.CONTAINING;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -72,7 +74,13 @@ public class CheckingAccountImpl implements CheckingAccountService {
 
     @Override
     public List<CheckingAccount> findAll(CheckingAccount account) {
-        return List.of();
+        ExampleMatcher exampleMatcher = ExampleMatcher
+                .matching()
+                .withIgnoreCase()
+                .withStringMatcher(CONTAINING);
+        Example<CheckingAccount> example = Example.of(account, exampleMatcher);
+
+        return checkingAccountRepository.findAll(example);
     }
 
     private CheckingAccount findAccountByCpf(String cpf) {
