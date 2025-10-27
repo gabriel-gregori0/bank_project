@@ -95,6 +95,7 @@ public class CheckingAccountImpl implements CheckingAccountService {
 
     }
 
+    @Override
     public void deposit(String cpf,BigDecimal value) {
         CheckingAccount userFound = checkingAccountRepository
                 .findByUser_Cpf(cpf)

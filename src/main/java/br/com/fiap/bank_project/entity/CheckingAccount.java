@@ -58,6 +58,7 @@ public class CheckingAccount extends Bank implements Serializable {
             throw new ResponseStatusException(BAD_REQUEST,"Saldo Insuficiente!");
         } else {
             this.balance = this.balance.subtract(value);
+            this.expense = this.expense.add(value);
         }
     }
 
