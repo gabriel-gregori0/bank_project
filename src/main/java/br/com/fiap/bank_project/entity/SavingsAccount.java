@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@Entity
+@Table(name = "tb_savings_account")
 public class SavingsAccount extends Bank implements Serializable {
 
     @Id
@@ -28,12 +30,10 @@ public class SavingsAccount extends Bank implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    @Column(nullable = false)
     private User user;
 
     @OneToOne
     @JoinColumn(name = "checking_account_id")
-    @Column(nullable = false)
     private CheckingAccount checkingAccount;
 
 

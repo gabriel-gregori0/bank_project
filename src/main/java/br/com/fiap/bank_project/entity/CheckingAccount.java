@@ -26,8 +26,7 @@ public class CheckingAccount extends Bank implements Serializable {
     private BigDecimal expense;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
-    @Column(nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public CheckingAccount() {}

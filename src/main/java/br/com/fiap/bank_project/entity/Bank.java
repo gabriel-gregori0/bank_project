@@ -1,8 +1,11 @@
 package br.com.fiap.bank_project.entity;
 
+import jakarta.persistence.MappedSuperclass;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+@MappedSuperclass
 public abstract class Bank implements Serializable {
 
     protected BigDecimal balance;

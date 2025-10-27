@@ -6,6 +6,7 @@ import br.com.fiap.bank_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -37,15 +38,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user, String cpf) {
-        if(!userRepository.existsByCpf(cpf)) {
-            throw new ResponseStatusException(BAD_REQUEST);
-        }
         return userRepository.findByCpf(cpf)
                 .map(found -> {
-                    found.setCpf(user.getCpf());
-                    return userRepository.save(user);
-                }).orElseThrow(() -> new ResponseStatusException(BAD_REQUEST));
-
+                    found.setName(user.getName());
+                    found.setEmail(user.getEmail());
+                    return userRepository.save(found);
+                })
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Usuário não encontrado"));
     }
 
     @Override
