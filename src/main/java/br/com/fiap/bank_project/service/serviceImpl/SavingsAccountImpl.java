@@ -41,7 +41,7 @@ public class SavingsAccountImpl implements SavingsAccountService {
     @Override
     public SavingsAccount update(String cpf, SavingsAccount newAccount) {
         SavingsAccount account = findAccountByCpf(cpf);
-        return accountRepository.findByCpf(account.getUser().getCpf())
+        return accountRepository.findByUser_Cpf(account.getUser().getCpf())
                 .map(found -> {
                     found.setInvestment(newAccount.getInvestment());
                     found.setTransference(newAccount.getTransference());
@@ -73,7 +73,7 @@ public class SavingsAccountImpl implements SavingsAccountService {
         SavingsAccount account = new SavingsAccount();
         account.setUser(userFound);
 
-        return accountRepository.findByCpf(account.getUser().getCpf())
+        return accountRepository.findByUser_Cpf(account.getUser().getCpf())
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Usuário não encontrado"));

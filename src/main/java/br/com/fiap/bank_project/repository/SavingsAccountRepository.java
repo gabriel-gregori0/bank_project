@@ -9,5 +9,5 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public interface SavingsAccountRepository extends JpaRepository<SavingsAccount,Long> {
 
-    Optional<SavingsAccount> findByCpf(String cpf);
+    Optional<SavingsAccount> findByUser_Cpf(String cpf);
 }

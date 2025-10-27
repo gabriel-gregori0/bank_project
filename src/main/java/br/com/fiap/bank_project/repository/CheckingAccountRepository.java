@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Transactional(readOnly = true)
 public interface CheckingAccountRepository extends JpaRepository<CheckingAccount,Long> {
-    Optional<CheckingAccount> findByCpf(String cpf);
+    Optional<CheckingAccount> findByUser_Cpf(String cpf);
 }
