@@ -86,7 +86,7 @@ public class SavingsAccount extends Bank implements Serializable {
     }
 
     public void setInvestment(BigDecimal investment) {
-        this.investment = investment;
+        this.investment = this.investment.add(investment);
     }
 
     public User getUser() {
