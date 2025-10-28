@@ -88,7 +88,6 @@ public class SavingsAccountImpl implements SavingsAccountService {
 
         return savingsAccountRepository.findAll(example);
     }
-    
 
     private User findByCpf(String cpf) {
         return userRepository.findByCpf(cpf)
