@@ -112,6 +112,18 @@ public class SavingsAccountImpl implements SavingsAccountService {
         savingsAccountRepository.save(userFound);
     }
 
+    @Override
+    public void withdraw(String cpf,BigDecimal value) {
+        SavingsAccount userFound = savingsAccountRepository
+                .findByUser_Cpf(cpf)
+                .orElseThrow(() ->
+                        new ResponseStatusException(NOT_FOUND,"CPF não encontrado"));
+
+        userFound.withdraw(value);
+        savingsAccountRepository.save(userFound);
+
+    }
+
     private User findByCpf(String cpf) {
         return userRepository.findByCpf(cpf)
                 .orElseThrow(() ->
