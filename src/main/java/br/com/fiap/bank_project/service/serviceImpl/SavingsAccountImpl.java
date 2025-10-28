@@ -102,6 +102,16 @@ public class SavingsAccountImpl implements SavingsAccountService {
         checkingAccountRepository.save(checkingAccount);
     }
 
+    @Override
+    public void deposit(String cpf, BigDecimal value) {
+        SavingsAccount userFound = savingsAccountRepository
+                .findByUser_Cpf(cpf)
+                .orElseThrow(() ->
+                        new ResponseStatusException(NOT_FOUND,"CPF não encontrado"));
+        userFound.deposit(value);
+        savingsAccountRepository.save(userFound);
+    }
+
     private User findByCpf(String cpf) {
         return userRepository.findByCpf(cpf)
                 .orElseThrow(() ->

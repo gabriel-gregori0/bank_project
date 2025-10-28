@@ -12,4 +12,5 @@ public interface SavingsAccountService {
     public void delete(String cpf);
     public List<SavingsAccount> findAll(SavingsAccount account);
     public void transfer(String cpf, BigDecimal value);
+    public void deposit(String cpf, BigDecimal value);
 }
