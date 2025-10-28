@@ -48,6 +48,12 @@ public class SavingsAccountController {
         return service.findAll(account);
     }
 
+    @GetMapping("/{cpf}")
+    @ResponseStatus(OK)
+    public SavingsAccount findByCpf(@PathVariable String cpf) {
+        return service.findSavingsByCpf(cpf);
+    }
+
     @PostMapping("/{cpf}/transfer")
     @ResponseStatus(OK)
     public ResponseEntity<String> transfer(

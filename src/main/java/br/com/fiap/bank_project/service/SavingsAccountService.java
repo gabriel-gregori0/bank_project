@@ -14,4 +14,5 @@ public interface SavingsAccountService {
     public void transfer(String cpf, BigDecimal value);
     public void deposit(String cpf, BigDecimal value);
     public void withdraw(String cpf,BigDecimal value);
+    public SavingsAccount findSavingsByCpf(String cpf);
 }

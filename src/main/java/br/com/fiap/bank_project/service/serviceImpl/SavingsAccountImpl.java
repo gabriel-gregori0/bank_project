@@ -124,11 +124,12 @@ public class SavingsAccountImpl implements SavingsAccountService {
 
     }
 
-    private User findByCpf(String cpf) {
-        return userRepository.findByCpf(cpf)
+    @Override
+    public SavingsAccount findSavingsByCpf(String cpf) {
+        return savingsAccountRepository
+                .findByUser_Cpf(cpf)
                 .orElseThrow(() ->
-                        new ResponseStatusException(NOT_FOUND,
-                                "Usuário não encontrado"));
+                        new ResponseStatusException(NOT_FOUND,"CPF não encontrado"));
     }
 
     private CheckingAccount findByCheckingAccount(String cpf) {
@@ -137,4 +138,13 @@ public class SavingsAccountImpl implements SavingsAccountService {
                         new ResponseStatusException(NOT_FOUND,
                                 "Usuário não encontrado"));
     }
+
+    private User findByCpf(String cpf) {
+        return userRepository.findByCpf(cpf)
+                .orElseThrow(() ->
+                        new ResponseStatusException(NOT_FOUND,
+                                "Usuário não encontrado"));
+    }
+
+
 }
