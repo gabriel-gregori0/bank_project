@@ -58,4 +58,16 @@ public class SavingsAccountController {
         service.transfer(cpf, value);
         return ResponseEntity.ok("Transferência de: " + value + "R$");
     }
+
+    @PatchMapping("/{cpf}/deposit")
+    public ResponseEntity<String> deposit(
+            @PathVariable String cpf,
+            @RequestBody Map<String, BigDecimal> requestBody) {
+
+        BigDecimal value = requestBody.get("value");
+
+        service.deposit(cpf, value);
+
+        return ResponseEntity.ok("Você depositou: " + value + "R$");
+    }
 }

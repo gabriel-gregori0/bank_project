@@ -1,10 +1,13 @@
 package br.com.fiap.bank_project.entity;
 
 import jakarta.persistence.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Entity
 @Table(name = "tb_savings_account")
@@ -51,12 +54,22 @@ public class SavingsAccount extends Bank implements Serializable {
 
     @Override
     public void deposit(BigDecimal value) {
-
+        if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(BAD_REQUEST,"Valor Incorreto!");
+        } else {
+            this.balance = this.balance.add(value);
+        }
     }
 
     @Override
     public void withdraw(BigDecimal value) {
-
+        if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(BAD_REQUEST,"Valor Incorreto!");
+        } else if (this.balance.compareTo(value) < 0) {
+            throw new ResponseStatusException(BAD_REQUEST,"Saldo Insuficiente!");
+        } else {
+            this.balance = this.balance.subtract(value);
+        }
     }
 
     public void transfer(CheckingAccount checking, BigDecimal value) {
