@@ -40,5 +40,8 @@ public class SavingsAccountController {
         service.delete(cpf);
     }
 
-
+    @GetMapping
+    public List<SavingsAccount> findAll(SavingsAccount account) {
+        return service.findAll(account);
+    }
 }
