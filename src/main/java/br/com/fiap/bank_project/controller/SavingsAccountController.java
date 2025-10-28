@@ -26,5 +26,10 @@ public class SavingsAccountController {
         return service.save(account);
     }
 
- 
+    @PutMapping("/{cpf}")
+    @ResponseStatus(OK)
+    public SavingsAccount update(@PathVariable String cpf,
+                                 @RequestBody SavingsAccount account) {
+        return service.update(cpf,account);
+    }
 }
