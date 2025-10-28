@@ -3,9 +3,12 @@ package br.com.fiap.bank_project.controller;
 import br.com.fiap.bank_project.entity.SavingsAccount;
 import br.com.fiap.bank_project.service.SavingsAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -43,5 +46,16 @@ public class SavingsAccountController {
     @GetMapping
     public List<SavingsAccount> findAll(SavingsAccount account) {
         return service.findAll(account);
+    }
+
+    @PostMapping("/{cpf}/transfer")
+    @ResponseStatus(OK)
+    public ResponseEntity<String> transfer(
+            @PathVariable String cpf,
+            @RequestBody Map<String, BigDecimal> body) {
+
+        BigDecimal value = body.get("value");
+        service.transfer(cpf, value);
+        return ResponseEntity.ok("Transferência de: " + value + "R$");
     }
 }
