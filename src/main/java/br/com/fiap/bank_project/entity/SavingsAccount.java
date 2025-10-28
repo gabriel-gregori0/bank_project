@@ -73,9 +73,13 @@ public class SavingsAccount extends Bank implements Serializable {
     }
 
     public void transfer(CheckingAccount checking, BigDecimal value) {
-        checking.deposit(value);
-        this.transference = this.transference.add(value);
-        this.balance = this.balance.subtract(value);
+        if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(BAD_REQUEST,"Valor Incorreto!");
+        } else {
+            checking.deposit(value);
+            this.transference = this.transference.add(value);
+            this.balance = this.balance.subtract(value);
+        }
     }
 
     public Long getId() {
