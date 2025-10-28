@@ -5,8 +5,9 @@ import br.com.fiap.bank_project.service.SavingsAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/savings")
@@ -32,4 +33,12 @@ public class SavingsAccountController {
                                  @RequestBody SavingsAccount account) {
         return service.update(cpf,account);
     }
+
+    @DeleteMapping("/{cpf}")
+    @ResponseStatus(NO_CONTENT)
+    public void delete(@PathVariable String cpf) {
+        service.delete(cpf);
+    }
+
+
 }
