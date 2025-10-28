@@ -106,12 +106,9 @@ public class CheckingAccountImpl implements CheckingAccountService {
         checkingAccountRepository.save(userFound);
     }
 
-    private CheckingAccount findAccountByCpf(String cpf) {
-        User userFound = findByCpf(cpf);
-        CheckingAccount account = new CheckingAccount();
-        account.setUser(userFound);
-
-        return checkingAccountRepository.findByUser_Cpf(account.getUser().getCpf())
+    @Override
+    public CheckingAccount findAccountByCpf(String cpf) {
+        return checkingAccountRepository.findByUser_Cpf(cpf)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Usuário não encontrado"));

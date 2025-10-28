@@ -46,6 +46,12 @@ public class CheckingAccountController {
         return service.findAll(account);
     }
 
+    @GetMapping("/{cpf}")
+    @ResponseStatus(OK)
+    public CheckingAccount findByCpf(@PathVariable String cpf) {
+        return service.findAccountByCpf(cpf);
+    }
+
     @PatchMapping("/{cpf}/withdraw")
     public ResponseEntity<String> withdraw(
             @PathVariable String cpf,

@@ -14,5 +14,5 @@ public interface CheckingAccountService {
     public List<CheckingAccount> findAll(CheckingAccount account);
     public void withdraw(String cpf, BigDecimal value);
     public void deposit(String cpf,BigDecimal value);
-
+    public CheckingAccount findAccountByCpf(String cpf);
 }
