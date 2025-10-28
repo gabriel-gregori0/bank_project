@@ -70,4 +70,16 @@ public class SavingsAccountController {
 
         return ResponseEntity.ok("Você depositou: " + value + "R$");
     }
+
+    @PatchMapping("/{cpf}/withdraw")
+    public ResponseEntity<String> withdraw(
+            @PathVariable String cpf,
+            @RequestBody Map<String, BigDecimal> requestBody) {
+
+        BigDecimal value = requestBody.get("value");
+
+        service.withdraw(cpf, value);
+
+        return ResponseEntity.ok("Você retirou: " + value + "R$");
+    }
 }
