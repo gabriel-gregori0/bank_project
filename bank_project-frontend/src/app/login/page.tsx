@@ -22,7 +22,6 @@ export default function LoginPage() {
       return;
     }
 
-    // Aqui você chamaria sua API de autenticação. Por enquanto mostramos uma simulação.
     setSuccess("Login bem-sucedido (simulação).");
     console.log("Login submit", { email, password });
   };
@@ -82,7 +81,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Ainda não tem conta?{' '}
-          <Link href="#" className="text-blue-600 hover:underline">Criar conta</Link>
+          <Link href="/register" className="text-blue-600 hover:underline">Criar conta</Link>
         </p>
       </div>
     </main>
