@@ -27,10 +27,13 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 mx-4">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Entrar</h2>
-        <p className="text-sm text-gray-500 mb-6">Acesse sua conta</p>
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 mx-4 ring-1 ring-gray-200">
+        <div className="flex flex-col items-center">
+          <div className="h-14 w-14 rounded-full bg-black flex items-center justify-center text-red-600 font-extrabold text-lg mb-4 ring-1 ring-black/10" role="img" aria-label="Logo FIAP">FIAP</div>
+          <h2 className="text-3xl font-extrabold text-gray-800 mb-1">FIAP BANK</h2>
+          <p className="text-sm text-gray-600 mb-6">Entre na sua conta para continuar</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -40,7 +43,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 shadow-sm placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               placeholder="voce@exemplo.com"
             />
           </div>
@@ -52,19 +55,12 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 shadow-sm placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               placeholder="••••••••"
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <label className="inline-flex items-center text-sm text-gray-600">
-              <input type="checkbox" className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" />
-              <span className="ml-2">Lembrar-me</span>
-            </label>
-
-            <Link href="#" className="text-sm text-blue-600 hover:underline">Esqueceu a senha?</Link>
-          </div>
+          {/* Removido: lembrar-me e esqueceu a senha (conforme solicitado) */}
 
           {error && <div className="text-sm text-red-600">{error}</div>}
           {success && <div className="text-sm text-green-600">{success}</div>}
@@ -72,7 +68,7 @@ export default function LoginPage() {
           <div>
             <button
               type="submit"
-              className="w-full inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none"
+              className="w-full inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 py-2 text-white font-semibold shadow hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-indigo-200"
             >
               Entrar
             </button>
