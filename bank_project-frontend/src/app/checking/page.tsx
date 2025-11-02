@@ -3,12 +3,10 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function RegisterPage() {
-  const [name, setName] = useState("");
+export default function CheckingPage() {
+  const [deposit, setDeposit] = useState("");
   const [cpf, setCpf] = useState("");
-  const [email, setEmail] = useState("");
   
-  // Helpers para CPF
   const onlyDigits = (s: string) => s.replace(/\D/g, "");
   const formatCpf = (value: string) => {
     const d = onlyDigits(value).slice(0, 11);
@@ -17,7 +15,6 @@ export default function RegisterPage() {
     if (d.length <= 9) return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6)}`;
     return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
   };
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,34 +25,33 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
-    if (!name.trim()) {
-      setError("Por favor, informe o nome.");
-      return;
-    }
     const cpfDigits = onlyDigits(cpf);
     if (!cpfDigits) {
-      setError("Por favor, informe o CPF.");
+      setError("Por favor, informe o CPF do usuário.");
       return;
     }
     if (cpfDigits.length !== 11) {
       setError("CPF inválido. Deve conter 11 dígitos.");
       return;
     }
-    if (!email.trim()) {
-      setError("Por favor, informe o email.");
-      return;
-    }
-    if (!password.trim()) {
-      setError("Por favor, informe a senha.");
+
+    if (!deposit || Number(deposit) <= 0) {
+      setError("Informe um valor de depósito maior que 0.");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch("/api/user", {
+      // Envia o depósito como saldo inicial (balance)
+      const payload: any = {
+        user: { cpf: onlyDigits(cpf) },
+        balance: Number(deposit),
+      };
+
+      const res = await fetch("/api/checking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ name, cpf: onlyDigits(cpf), email, password }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -64,12 +60,11 @@ export default function RegisterPage() {
       }
 
       const created = await res.json();
-      setSuccess("Usuário criado com sucesso.");
-      // redireciona para login após curto delay
+      setSuccess("Conta corrente criada com sucesso.");
+      console.log("CheckingAccount criado:", created);
       setTimeout(() => router.push("/login"), 1000);
-      console.log("Usuário criado:", created);
     } catch (err: any) {
-      setError(err.message || "Erro ao criar usuário.");
+      setError(err.message || "Erro ao criar conta corrente.");
     } finally {
       setLoading(false);
     }
@@ -78,24 +73,12 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 mx-4">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Criar conta</h2>
-        <p className="text-sm text-gray-500 mb-6">Preencha os dados para criar sua conta.</p>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Criar Conta Corrente</h2>
+        <p className="text-sm text-gray-500 mb-6">Preencha os dados para criar a conta corrente.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nome</label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="Seu nome completo"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="cpf" className="block text-sm font-medium text-gray-700">CPF</label>
+            <label htmlFor="cpf" className="block text-sm font-medium text-gray-700">CPF do usuário</label>
             <input
               id="cpf"
               type="text"
@@ -108,26 +91,15 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+            <label htmlFor="deposit" className="block text-sm font-medium text-gray-700">Depósito inicial (R$)</label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="deposit"
+              type="number"
+              step="0.01"
+              value={deposit}
+              onChange={(e) => setDeposit(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="voce@exemplo.com"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Senha</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="••••••••"
+              placeholder="0.00"
             />
           </div>
 
@@ -138,9 +110,9 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60 focus:outline-none"
+              className="w-full inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60 focus:outline-none"
             >
-              {loading ? "Criando..." : "Criar conta"}
+              {loading ? "Criando..." : "Criar conta corrente"}
             </button>
           </div>
         </form>

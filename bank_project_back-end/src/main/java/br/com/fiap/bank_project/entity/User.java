@@ -27,14 +27,17 @@ public class User implements Serializable {
     private String cpf;
     @Column(length = 20, nullable = false)
     private String email;
+    @Column(length = 20, nullable = false)
+    private String password;
 
 
     public User(){}
 
-    public User(String name, String cpf, String email) {
+    public User(String name, String cpf, String email, String password) {
         this.name = name;
         this.cpf = cpf;
         this.email = email;
+        this.password = password;
     }
 
     public Long getId() {
@@ -69,16 +72,24 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(cpf, user.cpf);
+        return Objects.equals(id, user.id) && Objects.equals(cpf, user.cpf) && Objects.equals(email, user.email) && Objects.equals(password, user.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, cpf);
+        return Objects.hash(id, cpf, email, password);
     }
 
     @Override
