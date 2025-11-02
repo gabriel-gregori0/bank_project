@@ -74,7 +74,7 @@ export default function CheckingPage() {
     <main className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 mx-4">
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">Criar Conta Corrente</h2>
-        <p className="text-sm text-gray-500 mb-6">Preencha os dados para criar a conta corrente.</p>
+        <p className="text-sm text-gray-500 mb-6">conta corrente.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
