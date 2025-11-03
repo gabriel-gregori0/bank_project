@@ -24,10 +24,10 @@ export default function CheckingPage() {
     try {
       const raw = localStorage.getItem("user");
       if (!raw) {
-        router.replace("/login");
+        router.replace("/");
       }
     } catch (err) {
-      router.replace("/login");
+      router.replace("/");
     }
   }, [router]);
 
@@ -59,7 +59,7 @@ export default function CheckingPage() {
         balance: Number(deposit),
       };
 
-      const res = await fetch("/api/checking", {
+      const res = await fetch("http://localhost:8080/api/checking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -71,9 +71,9 @@ export default function CheckingPage() {
       }
 
       const created = await res.json();
-      setSuccess("Conta corrente criada com sucesso.");
+  setSuccess("Conta corrente criada com sucesso.");
       console.log("CheckingAccount criado:", created);
-      setTimeout(() => router.push("/login"), 1000);
+  setTimeout(() => router.push("/"), 1000);
     } catch (err: any) {
       setError(err.message || "Erro ao criar conta corrente.");
     } finally {

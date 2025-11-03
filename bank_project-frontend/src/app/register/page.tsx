@@ -52,21 +52,46 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/user", {
+      console.log('Iniciando registro de usuário...');
+      const userData = { 
+        name, 
+        cpf: onlyDigits(cpf), 
+        email, 
+        password 
+      };
+      console.log('Dados a serem enviados:', { ...userData, password: '***' });
+
+      const res = await fetch("http://localhost:8080/api/user", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ name, cpf: onlyDigits(cpf), email, password }),
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(userData)
       });
 
+      console.log('Status da resposta:', res.status);
+      console.log('Headers da resposta:', Object.fromEntries(res.headers.entries()));
+
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `Erro: ${res.status}`);
+        let errorMessage = "Erro ao criar usuário.";
+        const contentType = res.headers.get("content-type");
+        
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await res.json();
+          console.error('Erro detalhado:', errorData);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } else {
+          const text = await res.text();
+          console.error('Resposta de erro:', text);
+          errorMessage = text || `Erro ${res.status}: ${res.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const created = await res.json();
-      setSuccess("Usuário criado com sucesso.");
-      // redireciona para login após curto delay
-      setTimeout(() => router.push("/login"), 1000);
+  setSuccess("Usuário criado com sucesso.");
+  // redireciona para a página de login (agora raiz) após curto delay
+  setTimeout(() => router.push("/"), 1000);
       console.log("Usuário criado:", created);
     } catch (err: any) {
       setError(err.message || "Erro ao criar usuário.");

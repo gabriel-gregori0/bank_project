@@ -13,13 +13,13 @@ export default function AccountPage() {
     try {
       const raw = localStorage.getItem("user");
       if (!raw) {
-        router.replace("/login");
+        router.replace("/");
         return;
       }
       const parsed = JSON.parse(raw);
       setUser(parsed);
     } catch (err) {
-      router.replace("/login");
+      router.replace("/");
       return;
     } finally {
       setLoading(false);
@@ -28,7 +28,7 @@ export default function AccountPage() {
 
   const logout = () => {
     try { localStorage.removeItem("user"); } catch {}
-    router.push("/login");
+    router.push("/");
   };
 
   if (loading) {

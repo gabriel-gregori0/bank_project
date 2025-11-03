@@ -17,10 +17,10 @@ export default function SavingsPage() {
     try {
       const raw = localStorage.getItem("user");
       if (!raw) {
-        router.replace("/login");
+        router.replace("/");
       }
     } catch (err) {
-      router.replace("/login");
+      router.replace("/");
     }
   }, [router]);
 
@@ -54,7 +54,7 @@ export default function SavingsPage() {
 
     setLoadingDeposit(true);
     try {
-      const res = await fetch(`/api/savings/${onlyDigits(cpf)}/deposit`, {
+      const res = await fetch(`http://localhost:8080/api/savings/${onlyDigits(cpf)}/deposit`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ value: Number(depositValue) }),
@@ -87,7 +87,7 @@ export default function SavingsPage() {
 
     setLoadingTransfer(true);
     try {
-      const res = await fetch(`/api/savings/${onlyDigits(cpf)}/transfer`, {
+      const res = await fetch(`http://localhost:8080/api/savings/${onlyDigits(cpf)}/transfer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ value: Number(transferValue) }),
