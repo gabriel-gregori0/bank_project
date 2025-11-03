@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SavingsPage() {
   const [cpf, setCpf] = useState("");
@@ -10,6 +11,18 @@ export default function SavingsPage() {
   const [success, setSuccess] = useState("");
   const [loadingDeposit, setLoadingDeposit] = useState(false);
   const [loadingTransfer, setLoadingTransfer] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      if (!raw) {
+        router.replace("/login");
+      }
+    } catch (err) {
+      router.replace("/login");
+    }
+  }, [router]);
 
   const onlyDigits = (s: string) => s.replace(/\D/g, "");
   const formatCpf = (value: string) => {

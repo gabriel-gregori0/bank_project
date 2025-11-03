@@ -4,8 +4,10 @@ import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -45,4 +47,14 @@ public class UserController {
         return service.findAll(user);
     }
 
+    @PostMapping("/login")
+    @ResponseStatus(OK)
+    public User login(@RequestBody Map<String, String> credentials) {
+        String email = credentials.get("email");
+        String password = credentials.get("password");
+        if (email == null || password == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "Email e senha são obrigatórios");
+        }
+        return service.findByEmailAndPassword(email, password);
+    }
 }

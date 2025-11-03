@@ -78,4 +78,22 @@ public class UserServiceImpl implements UserService {
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Usuário não encontrado"));
     }
+
+    @Override
+    public User findByEmailAndPassword(String email, String password) {
+        // Mock admin check first
+        if (email.equals("adm@fiap.com.br") && password.equals("fiap2025")) {
+            User adminUser = new User();
+            adminUser.setName("Admin");
+            adminUser.setEmail("adm@fiap.com.br");
+            adminUser.setRole("ADMIN");
+            return adminUser;
+        }
+        
+        // Try to find user in database
+        return userRepository.findByEmailAndPassword(email, password)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado ou senha inválida"));
+    }
 }

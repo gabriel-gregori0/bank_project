@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function CheckingPage() {
@@ -19,6 +19,17 @@ export default function CheckingPage() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      if (!raw) {
+        router.replace("/login");
+      }
+    } catch (err) {
+      router.replace("/login");
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

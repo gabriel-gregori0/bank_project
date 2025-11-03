@@ -2,14 +2,16 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -21,9 +23,63 @@ export default function LoginPage() {
       setError("Por favor, informe a senha.");
       return;
     }
+    
+    // Credenciais mock do admin
+    const ADMIN_EMAIL = "adm@fiap.com.br";
+    const ADMIN_PASSWORD = "fiap2025";
 
-    setSuccess("Login bem-sucedido (simulação).");
-    console.log("Login submit", { email, password });
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      // salva usuário mock no localStorage como admin (mesma forma do backend)
+      try { localStorage.setItem("user", JSON.stringify({ email, role: "ADMIN" })); } catch {}
+      setSuccess("Login como admin bem-sucedido.");
+      console.log("Admin login", { email });
+      router.push("/account");
+      return;
+    }
+
+    // Se não for admin, tenta autenticar com o backend
+    try {
+      const response = await fetch("http://localhost:8080/api/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError("Email ou senha incorretos");
+        } else {
+          setError("Erro ao tentar fazer login. Por favor, tente novamente.");
+        }
+        return;
+      }
+
+      const user = await response.json();
+      if (!user || !user.email) {
+        setError("Resposta inválida do servidor");
+        return;
+      }
+
+      try { 
+        localStorage.setItem("user", JSON.stringify(user)); 
+        setSuccess("Login bem-sucedido!");
+        console.log("User login", { email });
+        router.push("/account");
+      } catch (error) {
+        console.error("LocalStorage error:", error);
+        setError("Erro ao salvar dados do usuário");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Erro ao tentar fazer login. Por favor, tente novamente.");
+    }
+  };
+
+  const fillAdmin = () => {
+    setEmail("adm@fiap.com.br");
+    setPassword("fiap2025");
   };
 
   return (
@@ -74,6 +130,11 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
+
+        <div className="mt-4 flex justify-between gap-2">
+          <button onClick={fillAdmin} className="flex-1 inline-flex items-center justify-center rounded-md border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Usar credenciais admin</button>
+          <Link href="/register" className="flex-1 text-right text-sm text-blue-600 hover:underline">Criar conta</Link>
+        </div>
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Ainda não tem conta?{' '}

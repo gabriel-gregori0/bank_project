@@ -11,4 +11,5 @@ public interface UserService {
     public void delete(String cpf);
     public User findByCpf(String cpf);
     public List<User> findAll(User user);
+    public User findByEmailAndPassword(String email, String password);
 }
