@@ -42,12 +42,11 @@ export default function AccountPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 mx-4 text-center">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-center mb-4">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-800">Escolha sua conta</h2>
-            <p className="text-sm text-gray-600">Selecione o tipo de conta para acessar as operações.</p>
+            <h2 className="text-2xl font-semibold text-gray-800 text-center">Escolha o tipo da conta</h2>
           </div>
-          <div className="text-sm text-gray-600">{user?.email}</div>
+          
         </div>
 
         <div className="grid grid-cols-1 gap-4 mb-4">
