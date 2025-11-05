@@ -41,14 +41,28 @@ public class SavingsAccountImpl implements SavingsAccountService {
     @Override
     public SavingsAccount save(SavingsAccount savingsAccount) {
         User userFound = findByCpf(savingsAccount.getUser().getCpf());
-        CheckingAccount accountFound = findByCheckingAccount(savingsAccount.getCheckingAccount().getUser().getCpf());
 
         Optional<SavingsAccount> existingAccount = savingsAccountRepository.findByUser(userFound);
         if (existingAccount.isPresent()) {
-            throw new ResponseStatusException(BAD_REQUEST,"Usuário já possui uma conta corrente!");
+            throw new ResponseStatusException(BAD_REQUEST,"Usuário já possui uma conta poupança!");
         } else {
             savingsAccount.setUser(userFound);
-            savingsAccount.setCheckingAccount(accountFound);
+            
+            // CheckingAccount é opcional - só busca se foi fornecida
+            if (savingsAccount.getCheckingAccount() != null && 
+                savingsAccount.getCheckingAccount().getUser() != null) {
+                try {
+                    CheckingAccount accountFound = findByCheckingAccount(
+                        savingsAccount.getCheckingAccount().getUser().getCpf()
+                    );
+                    savingsAccount.setCheckingAccount(accountFound);
+                } catch (ResponseStatusException e) {
+                    // CheckingAccount não encontrada, deixa como null
+                    savingsAccount.setCheckingAccount(null);
+                }
+            } else {
+                savingsAccount.setCheckingAccount(null);
+            }
 
             if (savingsAccount.getInvestment() == null) savingsAccount.setInvestment(BigDecimal.ZERO);
             if (savingsAccount.getTransference() == null) savingsAccount.setTransference(BigDecimal.ZERO);
@@ -95,7 +109,12 @@ public class SavingsAccountImpl implements SavingsAccountService {
                 .findByUser_Cpf(cpf)
                 .orElseThrow(() ->
                         new ResponseStatusException(NOT_FOUND,"CPF não encontrado"));
-        CheckingAccount checkingAccount = findByCheckingAccount(cpf);
+        
+        CheckingAccount checkingAccount = checkingAccountRepository
+                .findByUser_Cpf(cpf)
+                .orElseThrow(() ->
+                        new ResponseStatusException(NOT_FOUND,
+                                "Conta corrente não encontrada. É necessário ter uma conta corrente para fazer transferências."));
 
         userFound.transfer(checkingAccount,value);
         savingsAccountRepository.save(userFound);

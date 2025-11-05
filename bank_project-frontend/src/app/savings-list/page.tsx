@@ -4,10 +4,11 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface SavingsAccount {
-  cpf: string;
+  id: number;
   accountNumber: string;
   balance: number;
   user?: {
+    cpf: string;
     name: string;
     email: string;
   };
@@ -115,7 +116,7 @@ export default function SavingsListPage() {
         throw new Error(errorMessage);
       }
 
-      setAccounts(accounts.filter((a) => a.cpf !== cpf));
+      setAccounts(accounts.filter((a) => a.user?.cpf !== cpf));
       alert("Conta excluída com sucesso!");
     } catch (err: any) {
       console.error('Erro ao excluir:', err);
@@ -130,17 +131,17 @@ export default function SavingsListPage() {
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingAccount) return;
+    if (!editingAccount || !editingAccount.user?.cpf) return;
 
     try {
       const updateData = {
-        cpf: editingAccount.cpf,
+        cpf: editingAccount.user.cpf,
         accountNumber: editingAccount.accountNumber,
         balance: parseFloat(editForm.balance),
       };
 
-      console.log('Atualizando conta:', editingAccount.cpf);
-      const response = await fetch(`http://localhost:8080/api/savings/${editingAccount.cpf}`, {
+      console.log('Atualizando conta:', editingAccount.user.cpf);
+      const response = await fetch(`http://localhost:8080/api/savings/${editingAccount.user.cpf}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -168,7 +169,7 @@ export default function SavingsListPage() {
       const updatedAccount = await response.json();
       console.log('Conta atualizada:', updatedAccount);
       
-      setAccounts(accounts.map((a) => (a.cpf === editingAccount.cpf ? updatedAccount : a)));
+      setAccounts(accounts.map((a) => (a.user?.cpf === editingAccount.user?.cpf ? updatedAccount : a)));
       setEditingAccount(null);
       alert("Conta atualizada com sucesso!");
     } catch (err: any) {
@@ -237,7 +238,7 @@ export default function SavingsListPage() {
                 </thead>
                 <tbody>
                   {accounts.map((account) => (
-                    <tr key={account.cpf} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr key={account.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">
                         <div className="flex gap-2">
                           <button
@@ -248,7 +249,7 @@ export default function SavingsListPage() {
                             Editar
                           </button>
                           <button
-                            onClick={() => handleDelete(account.cpf)}
+                            onClick={() => handleDelete(account.user?.cpf || '')}
                             className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
                             title="Excluir conta"
                           >
@@ -256,8 +257,8 @@ export default function SavingsListPage() {
                           </button>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-800 font-mono">{account.cpf}</td>
-                      <td className="py-3 px-4 text-gray-600 font-mono">{account.accountNumber}</td>
+                      <td className="py-3 px-4 text-gray-800 font-mono">{account.user?.cpf || '-'}</td>
+                      <td className="py-3 px-4 text-gray-600 font-mono">{account.id}</td>
                       <td className="py-3 px-4 text-gray-800 font-semibold">
                         R$ {account.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
@@ -280,17 +281,17 @@ export default function SavingsListPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
                   <input
                     type="text"
-                    value={editingAccount.cpf}
+                    value={editingAccount.user?.cpf || ''}
                     readOnly
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Número da Conta</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">ID da Conta</label>
                   <input
                     type="text"
-                    value={editingAccount.accountNumber}
+                    value={editingAccount.id}
                     readOnly
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed font-mono"
                   />
