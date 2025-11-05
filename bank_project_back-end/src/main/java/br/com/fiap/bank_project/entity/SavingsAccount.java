@@ -77,6 +77,10 @@ public class SavingsAccount extends Bank implements Serializable {
             throw new ResponseStatusException(BAD_REQUEST,"Valor Incorreto!");
         } else {
             checking.deposit(value);
+            // Garante transference não nulo antes de somar
+            if (this.transference == null) {
+                this.transference = BigDecimal.ZERO;
+            }
             this.transference = this.transference.add(value);
             this.balance = this.balance.subtract(value);
         }
@@ -95,6 +99,8 @@ public class SavingsAccount extends Bank implements Serializable {
     }
 
     public void setTransference(BigDecimal transference) {
+        // Evita sobrescrever com null acidentalmente
+        if (transference == null) return;
         this.transference = transference;
     }
 
@@ -103,11 +109,10 @@ public class SavingsAccount extends Bank implements Serializable {
     }
 
     public void setInvestment(BigDecimal investment) {
-        if (this.investment == null) {
-            this.investment = investment;
-        } else {
-            this.investment = this.investment.add(investment);
-        }
+        // No contexto de edição via API, o setter deve definir o valor diretamente
+        // e ignorar valores nulos para evitar NPEs em BigDecimal.
+        if (investment == null) return;
+        this.investment = investment;
     }
 
     public User getUser() {

@@ -76,8 +76,16 @@ public class SavingsAccountImpl implements SavingsAccountService {
     public SavingsAccount update(String cpf, SavingsAccount newAccount) {
         return savingsAccountRepository.findByUser_Cpf(cpf)
                 .map(found -> {
-                    found.setInvestment(newAccount.getInvestment());
-                    found.setTransference(newAccount.getTransference());
+                    // Atualiza apenas campos informados para evitar NPE e manter valores atuais
+                    if (newAccount.getInvestment() != null) {
+                        found.setInvestment(newAccount.getInvestment());
+                    }
+                    if (newAccount.getTransference() != null) {
+                        found.setTransference(newAccount.getTransference());
+                    }
+                    if (newAccount.getBalance() != null) {
+                        found.setBalance(newAccount.getBalance());
+                    }
                     return savingsAccountRepository.save(found);
                 }).orElseThrow(() ->
                 new ResponseStatusException(NOT_FOUND,

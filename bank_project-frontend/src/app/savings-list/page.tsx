@@ -288,7 +288,7 @@ export default function SavingsListPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">ID da Conta</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Número da Conta</label>
                   <input
                     type="text"
                     value={editingAccount.id}
