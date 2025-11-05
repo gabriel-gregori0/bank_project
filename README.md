@@ -324,8 +324,8 @@ Verifique se não há firewall bloqueando a porta
 Este projeto foi desenvolvido para fins educacionais na FIAP.
 
 ## 👥 Autores
+- **Gabriel Gregório** - Desenvolvimento Full Stack
 
-- **Seu Nome** - Desenvolvimento Full Stack
 
 ## 🙏 Agradecimentos
 
@@ -336,6 +336,6 @@ Este projeto foi desenvolvido para fins educacionais na FIAP.
 
 ⭐ Se este projeto foi útil para você, considere dar uma estrela no GitHub!
 
-🐛 Encontrou um bug? Abra uma [issue](https://github.com/seu-usuario/bank_project/issues)
+🐛 Encontrou um bug? Abra uma [issue](https://github.com/gabriel-gregori0/bank_project/issues)
 
-💡 Tem uma sugestão? Contribua com um [pull request](https://github.com/seu-usuario/bank_project/pulls)
+💡 Tem uma sugestão? Contribua com um [pull request](https://github.com/gabriel-gregori0/bank_project/pulls)
