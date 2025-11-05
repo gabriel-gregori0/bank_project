@@ -17,7 +17,69 @@ export default function SavingsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [expenses, setExpenses] = useState(0);
+  const [totalDeposits, setTotalDeposits] = useState(0);
   const router = useRouter();
+
+  // Função para carregar despesas e depósitos do localStorage
+  const loadFinancialData = () => {
+    if (!user?.cpf) return;
+    
+    const expensesKey = `expenses_${user.cpf}`;
+    const depositsKey = `deposits_${user.cpf}`;
+    
+    const savedExpenses = localStorage.getItem(expensesKey);
+    const savedDeposits = localStorage.getItem(depositsKey);
+    
+    setExpenses(savedExpenses ? parseFloat(savedExpenses) : 0);
+    setTotalDeposits(savedDeposits ? parseFloat(savedDeposits) : 0);
+  };
+
+  // Função para registrar despesa
+  const registerExpense = (value: number) => {
+    if (!user?.cpf) return;
+    
+    const expensesKey = `expenses_${user.cpf}`;
+    const currentExpenses = expenses + value;
+    
+    localStorage.setItem(expensesKey, currentExpenses.toString());
+    setExpenses(currentExpenses);
+  };
+
+  // Função para registrar depósito
+  const registerDeposit = (value: number) => {
+    if (!user?.cpf) return;
+    
+    const depositsKey = `deposits_${user.cpf}`;
+    const currentDeposits = totalDeposits + value;
+    
+    localStorage.setItem(depositsKey, currentDeposits.toString());
+    setTotalDeposits(currentDeposits);
+  };
+
+  // Função para calcular cor baseada no percentual
+  const getExpenseColor = () => {
+    if (totalDeposits === 0) return "text-gray-600";
+    
+    const percentage = (expenses / totalDeposits) * 100;
+    
+    if (percentage >= 30) return "text-[#c44e4e] font-bold"; // Vermelho fosco/opaco
+    if (percentage >= 10) return "text-yellow-500 font-semibold"; // Amarelo
+    
+    return "text-green-600";
+  };
+
+  // Função para obter a classe de animação
+  const getExpenseAnimation = () => {
+    if (totalDeposits === 0) return "";
+    
+    const percentage = (expenses / totalDeposits) * 100;
+    
+    if (percentage >= 30) return "animate-pulse"; // Pulsa quando >= 30%
+    if (percentage >= 10) return ""; // Sem animação entre 10-30%
+    
+    return "";
+  };
 
   useEffect(() => {
     try {
@@ -38,6 +100,13 @@ export default function SavingsPage() {
       router.replace("/");
     }
   }, [router]);
+
+  // Carregar dados financeiros quando o usuário for definido
+  useEffect(() => {
+    if (user?.cpf) {
+      loadFinancialData();
+    }
+  }, [user]);
 
   const checkExistingAccount = async (userCpf: string) => {
     try {
@@ -109,6 +178,10 @@ export default function SavingsPage() {
 
       const created = await response.json();
       console.log("Conta poupança criada:", created);
+      
+      // Registrar depósito inicial
+      registerDeposit(Number(amount));
+      
       setSuccess("Conta poupança criada com sucesso!");
       setAccount(created);
       setHasAccount(true);
@@ -159,6 +232,10 @@ export default function SavingsPage() {
 
       const result = await response.text();
       console.log("Depósito realizado:", result);
+      
+      // Registrar depósito
+      registerDeposit(Number(amount));
+      
       setSuccess("Depósito realizado com sucesso!");
       if (user.cpf) {
         await checkExistingAccount(user.cpf);
@@ -215,6 +292,10 @@ export default function SavingsPage() {
 
       const result = await response.text();
       console.log("Saque realizado:", result);
+      
+      // Registrar despesa (saque)
+      registerExpense(Number(amount));
+      
       setSuccess("Saque realizado com sucesso!");
       if (user.cpf) {
         await checkExistingAccount(user.cpf);
@@ -307,6 +388,10 @@ export default function SavingsPage() {
       }
 
       console.log("Transferência realizada com sucesso");
+      
+      // Registrar despesa (transferência)
+      registerExpense(Number(amount));
+      
       setSuccess("Transferência realizada com sucesso!");
       if (user.cpf) {
         await checkExistingAccount(user.cpf);
@@ -341,6 +426,15 @@ export default function SavingsPage() {
               CP
             </div>
             <h2 className="text-2xl font-semibold text-gray-800">Conta Poupança</h2>
+            
+            {/* Indicador de Despesas */}
+            <div className="mt-3 p-3 bg-gray-50 rounded-lg w-full border border-gray-200 transition-all duration-500">
+              <p className="text-sm text-gray-600">Despesa Total:</p>
+              <p className={`text-xl font-bold transition-colors duration-500 ${getExpenseColor()} ${getExpenseAnimation()}`}>
+                R$ {expenses.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+
             {hasAccount && account && (
               <div className="mt-3 p-3 bg-green-50 rounded-lg w-full">
                 <p className="text-sm text-gray-600">Saldo atual:</p>
