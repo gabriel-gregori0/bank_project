@@ -1,6 +1,8 @@
 package br.com.fiap.bank_project.service.serviceImpl;
 
 import br.com.fiap.bank_project.entity.User;
+import br.com.fiap.bank_project.repository.CheckingAccountRepository;
+import br.com.fiap.bank_project.repository.SavingsAccountRepository;
 import br.com.fiap.bank_project.repository.UserRepository;
 import br.com.fiap.bank_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -20,10 +23,16 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final CheckingAccountRepository checkingAccountRepository;
+    private final SavingsAccountRepository savingsAccountRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, 
+                          CheckingAccountRepository checkingAccountRepository,
+                          SavingsAccountRepository savingsAccountRepository) {
         this.userRepository = userRepository;
+        this.checkingAccountRepository = checkingAccountRepository;
+        this.savingsAccountRepository = savingsAccountRepository;
     }
 
     @Override
@@ -50,12 +59,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(String cpf) {
         User user = userRepository.findByCpf(cpf)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Usuário não encontrado"));
 
+        // Deleta conta poupança se existir
+        savingsAccountRepository.findByUser_Cpf(cpf).ifPresent(savingsAccount -> {
+            savingsAccountRepository.delete(savingsAccount);
+        });
+
+        // Deleta conta corrente se existir
+        checkingAccountRepository.findByUser_Cpf(cpf).ifPresent(checkingAccount -> {
+            checkingAccountRepository.delete(checkingAccount);
+        });
+
+        // Deleta o usuário
         userRepository.delete(user);
 
     }

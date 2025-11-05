@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-type ViewMode = "menu" | "create" | "deposit" | "withdraw";
+type ViewMode = "menu" | "create" | "deposit" | "withdraw" | "transfer";
 
 export default function SavingsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("menu");
@@ -13,6 +13,7 @@ export default function SavingsPage() {
   const [user, setUser] = useState<any>(null);
   
   const [amount, setAmount] = useState("");
+  const [targetCpf, setTargetCpf] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [processing, setProcessing] = useState(false);
@@ -228,6 +229,99 @@ export default function SavingsPage() {
     }
   };
 
+  const handleTransfer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!targetCpf || targetCpf.trim() === "") {
+      setError("Informe o CPF de destino.");
+      return;
+    }
+
+    if (!amount || Number(amount) <= 0) {
+      setError("Informe um valor maior que 0.");
+      return;
+    }
+
+    if (account && Number(amount) > account.balance) {
+      setError("Saldo insuficiente.");
+      return;
+    }
+
+    if (targetCpf === user.cpf) {
+      setError("Não é possível transferir para o mesmo CPF.");
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      // Primeiro, verificar se a conta corrente de destino existe
+      const checkResponse = await fetch(`http://localhost:8080/api/checking/${targetCpf}`, {
+        method: "GET",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+      });
+
+      if (!checkResponse.ok) {
+        throw new Error("Conta corrente de destino não encontrada.");
+      }
+
+      // Realizar o saque da conta poupança
+      const withdrawResponse = await fetch(`http://localhost:8080/api/savings/${user.cpf}/withdraw`, {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ value: Number(amount) }),
+      });
+
+      if (!withdrawResponse.ok) {
+        throw new Error("Erro ao debitar da conta poupança.");
+      }
+
+      // Realizar o depósito na conta corrente de destino
+      const depositResponse = await fetch(`http://localhost:8080/api/checking/${targetCpf}/deposit`, {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ value: Number(amount) }),
+      });
+
+      if (!depositResponse.ok) {
+        // Se falhar o depósito, tentar reverter o saque
+        await fetch(`http://localhost:8080/api/savings/${user.cpf}/deposit`, {
+          method: "PATCH",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ value: Number(amount) }),
+        });
+        throw new Error("Erro ao creditar na conta de destino. Operação revertida.");
+      }
+
+      console.log("Transferência realizada com sucesso");
+      setSuccess("Transferência realizada com sucesso!");
+      if (user.cpf) {
+        await checkExistingAccount(user.cpf);
+      }
+      setAmount("");
+      setTargetCpf("");
+      setTimeout(() => setViewMode("menu"), 2000);
+    } catch (err: any) {
+      console.error('Erro ao transferir:', err);
+      setError(err.message || "Erro ao realizar transferência.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
@@ -282,6 +376,13 @@ export default function SavingsPage() {
                   className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-red-600 to-red-700 px-4 py-3 text-white font-semibold shadow hover:opacity-95 transition"
                 >
                   Sacar
+                </button>
+
+                <button
+                  onClick={() => setViewMode("transfer")}
+                  className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-3 text-white font-semibold shadow hover:opacity-95 transition"
+                >
+                  Transferir
                 </button>
               </>
             )}
@@ -458,6 +559,82 @@ export default function SavingsPage() {
                 onClick={() => {
                   setViewMode("menu");
                   setAmount("");
+                  setError("");
+                  setSuccess("");
+                }}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 font-semibold"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    );
+  }
+
+  if (viewMode === "transfer") {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+        <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 mx-4 ring-1 ring-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Transferir</h2>
+          <p className="text-sm text-gray-500 mb-6">Transferência para Conta Corrente</p>
+
+          {account && (
+            <div className="mb-4 p-3 bg-green-50 rounded-lg">
+              <p className="text-sm text-gray-600">Saldo disponível:</p>
+              <p className="text-xl font-bold text-green-600">
+                R$ {account.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+          )}
+
+          <form onSubmit={handleTransfer} className="space-y-4">
+            <div>
+              <label htmlFor="targetCpf" className="block text-sm font-medium text-gray-700">CPF de Destino</label>
+              <input
+                id="targetCpf"
+                type="text"
+                value={targetCpf}
+                onChange={(e) => setTargetCpf(e.target.value)}
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                placeholder="000.000.000-00"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Informe o CPF da conta corrente de destino</p>
+            </div>
+
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Valor (R$)</label>
+              <input
+                id="amount"
+                type="number"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                placeholder="0.00"
+                required
+              />
+            </div>
+
+            {error && <div className="text-sm text-red-600">{error}</div>}
+            {success && <div className="text-sm text-green-600">{success}</div>}
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={processing}
+                className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 font-semibold disabled:opacity-60"
+              >
+                {processing ? "Transferindo..." : "Transferir"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setViewMode("menu");
+                  setAmount("");
+                  setTargetCpf("");
                   setError("");
                   setSuccess("");
                 }}
