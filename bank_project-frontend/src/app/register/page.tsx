@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
@@ -22,6 +22,22 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Bloqueia acesso de admin à página de registro
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      if (raw) {
+        const user = JSON.parse(raw);
+        if (user.role === "ADMIN") {
+          router.replace("/admin");
+          return;
+        }
+      }
+    } catch (err) {
+      // Ignora erro e permite continuar
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

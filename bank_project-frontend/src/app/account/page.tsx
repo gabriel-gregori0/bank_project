@@ -63,6 +63,15 @@ export default function AccountPage() {
           >
             Poupança
           </Link>
+
+          {user?.role === "ADMIN" && (
+            <Link
+              href="/users"
+              className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-white font-semibold hover:bg-purple-700"
+            >
+              Gerenciar Usuários
+            </Link>
+          )}
         </div>
 
         <div>

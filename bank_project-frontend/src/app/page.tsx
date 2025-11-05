@@ -33,7 +33,7 @@ export default function LoginPage() {
       try { localStorage.setItem("user", JSON.stringify({ email, role: "ADMIN" })); } catch {}
       setSuccess("Login como admin bem-sucedido.");
       console.log("Admin login", { email });
-      router.push("/account");
+      router.push("/admin");
       return;
     }
 
