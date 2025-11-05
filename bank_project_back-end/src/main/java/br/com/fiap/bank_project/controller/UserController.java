@@ -1,13 +1,17 @@
 package br.com.fiap.bank_project.controller;
 
+import br.com.fiap.bank_project.dto.user.UserCreateDTO;
+import br.com.fiap.bank_project.dto.user.UserLoginDTO;
+import br.com.fiap.bank_project.dto.user.UserResponseDTO;
+import br.com.fiap.bank_project.dto.user.UserUpdateDTO;
 import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -20,14 +24,17 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public User create(@RequestBody User user) {
-        return service.save(user);
+    public UserResponseDTO create(@Valid @RequestBody UserCreateDTO dto) {
+        User user = new User(dto.getName(), dto.getCpf(), dto.getEmail(), dto.getPassword(),
+                dto.getRole() != null ? dto.getRole() : "USER");
+        User saved = service.save(user);
+        return toUserResponse(saved);
     }
 
     @GetMapping("/{cpf}")
     @ResponseStatus(OK)
-    public User findByCpf(@PathVariable String cpf) {
-        return service.findByCpf(cpf);
+    public UserResponseDTO findByCpf(@PathVariable String cpf) {
+        return toUserResponse(service.findByCpf(cpf));
     }
 
     @DeleteMapping("/{cpf}")
@@ -38,23 +45,26 @@ public class UserController {
 
     @PutMapping("/{cpf}")
     @ResponseStatus(OK)
-    public User update(@RequestBody User user,@PathVariable String cpf) {
-        return service.update(user,cpf);
+    public UserResponseDTO update(@Valid @RequestBody UserUpdateDTO dto, @PathVariable String cpf) {
+        User updated = service.update(new User(dto.getName(), null, dto.getEmail(), null, null), cpf);
+        return toUserResponse(updated);
     }
 
     @GetMapping
-    public List<User> findAll(User user) {
-        return service.findAll(user);
+    public List<UserResponseDTO> findAll() {
+        return service.findAll(new User()).stream()
+                .map(this::toUserResponse)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/login")
     @ResponseStatus(OK)
-    public User login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
-        if (email == null || password == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Email e senha são obrigatórios");
-        }
-        return service.findByEmailAndPassword(email, password);
+    public UserResponseDTO login(@Valid @RequestBody UserLoginDTO credentials) {
+        User found = service.findByEmailAndPassword(credentials.getEmail(), credentials.getPassword());
+        return toUserResponse(found);
+    }
+
+    private UserResponseDTO toUserResponse(User u) {
+        return new UserResponseDTO(u.getId(), u.getName(), u.getCpf(), u.getEmail(), u.getRole());
     }
 }

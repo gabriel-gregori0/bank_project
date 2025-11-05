@@ -55,8 +55,12 @@ public class CheckingAccountImpl implements CheckingAccountService {
         return  checkingAccountRepository
                 .findByUser_Cpf(cpf)
                 .map(found -> {
-                    found.setBalance(newAccount.getBalance());
-                    found.setExpense(newAccount.getExpense());
+                    if (newAccount.getBalance() != null) {
+                        found.setBalance(newAccount.getBalance());
+                    }
+                    if (newAccount.getExpense() != null) {
+                        found.setExpense(newAccount.getExpense());
+                    }
                     return checkingAccountRepository.save(found);
                 }).orElseThrow(()->
                         new ResponseStatusException(NOT_FOUND,"CPF não encontrado"));

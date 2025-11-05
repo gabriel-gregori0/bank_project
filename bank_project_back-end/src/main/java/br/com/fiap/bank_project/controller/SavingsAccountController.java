@@ -1,14 +1,22 @@
 package br.com.fiap.bank_project.controller;
 
+import br.com.fiap.bank_project.dto.common.AmountDTO;
+import br.com.fiap.bank_project.dto.common.UserSummaryDTO;
+import br.com.fiap.bank_project.dto.savings.SavingsAccountCreateDTO;
+import br.com.fiap.bank_project.dto.savings.SavingsAccountResponseDTO;
+import br.com.fiap.bank_project.dto.savings.SavingsAccountUpdateDTO;
+import br.com.fiap.bank_project.entity.CheckingAccount;
 import br.com.fiap.bank_project.entity.SavingsAccount;
+import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.service.SavingsAccountService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -26,15 +34,36 @@ public class SavingsAccountController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public SavingsAccount create(@RequestBody SavingsAccount account) {
-        return service.save(account);
+    public SavingsAccountResponseDTO create(@Valid @RequestBody SavingsAccountCreateDTO dto) {
+        SavingsAccount account = new SavingsAccount();
+        User user = new User();
+        user.setCpf(dto.getUserCpf());
+        account.setUser(user);
+        if (dto.getCheckingCpf() != null && !dto.getCheckingCpf().isBlank()) {
+            CheckingAccount checking = new CheckingAccount();
+            User checkingUser = new User();
+            checkingUser.setCpf(dto.getCheckingCpf());
+            checking.setUser(checkingUser);
+            account.setCheckingAccount(checking);
+        }
+        if (dto.getInitialBalance() != null && !dto.getInitialBalance().isBlank()) {
+            try { account.setBalance(new BigDecimal(dto.getInitialBalance())); } catch (NumberFormatException ignored) {}
+        }
+        if (dto.getInitialInvestment() != null && !dto.getInitialInvestment().isBlank()) {
+            try { account.setInvestment(new BigDecimal(dto.getInitialInvestment())); } catch (NumberFormatException ignored) {}
+        }
+        return toResponse(service.save(account));
     }
 
     @PutMapping("/{cpf}")
     @ResponseStatus(OK)
-    public SavingsAccount update(@PathVariable String cpf,
-                                 @RequestBody SavingsAccount account) {
-        return service.update(cpf,account);
+    public SavingsAccountResponseDTO update(@PathVariable String cpf,
+                                 @Valid @RequestBody SavingsAccountUpdateDTO dto) {
+        SavingsAccount toUpdate = new SavingsAccount();
+        toUpdate.setInvestment(dto.getInvestment());
+        toUpdate.setTransference(dto.getTransference());
+        toUpdate.setBalance(dto.getBalance());
+        return toResponse(service.update(cpf, toUpdate));
     }
 
     @DeleteMapping("/{cpf}")
@@ -44,48 +73,51 @@ public class SavingsAccountController {
     }
 
     @GetMapping
-    public List<SavingsAccount> findAll(SavingsAccount account) {
-        return service.findAll(account);
+    public List<SavingsAccountResponseDTO> findAll() {
+        return service.findAll(new SavingsAccount()).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{cpf}")
     @ResponseStatus(OK)
-    public SavingsAccount findByCpf(@PathVariable String cpf) {
-        return service.findSavingsByCpf(cpf);
+    public SavingsAccountResponseDTO findByCpf(@PathVariable String cpf) {
+        return toResponse(service.findSavingsByCpf(cpf));
     }
 
     @PostMapping("/{cpf}/transfer")
     @ResponseStatus(OK)
     public ResponseEntity<String> transfer(
             @PathVariable String cpf,
-            @RequestBody Map<String, BigDecimal> body) {
+            @Valid @RequestBody AmountDTO body) {
 
-        BigDecimal value = body.get("value");
-        service.transfer(cpf, value);
-        return ResponseEntity.ok("Transferência de: " + value + "R$");
+        service.transfer(cpf, body.getValue());
+        return ResponseEntity.ok("Transferência de: " + body.getValue() + "R$");
     }
 
     @PatchMapping("/{cpf}/deposit")
     public ResponseEntity<String> deposit(
             @PathVariable String cpf,
-            @RequestBody Map<String, BigDecimal> requestBody) {
+            @Valid @RequestBody AmountDTO body) {
 
-        BigDecimal value = requestBody.get("value");
+        service.deposit(cpf, body.getValue());
 
-        service.deposit(cpf, value);
-
-        return ResponseEntity.ok("Você depositou: " + value + "R$");
+        return ResponseEntity.ok("Você depositou: " + body.getValue() + "R$");
     }
 
     @PatchMapping("/{cpf}/withdraw")
     public ResponseEntity<String> withdraw(
             @PathVariable String cpf,
-            @RequestBody Map<String, BigDecimal> requestBody) {
+            @Valid @RequestBody AmountDTO body) {
 
-        BigDecimal value = requestBody.get("value");
+        service.withdraw(cpf, body.getValue());
 
-        service.withdraw(cpf, value);
+        return ResponseEntity.ok("Você retirou: " + body.getValue() + "R$");
+    }
 
-        return ResponseEntity.ok("Você retirou: " + value + "R$");
+    private SavingsAccountResponseDTO toResponse(SavingsAccount a) {
+        User u = a.getUser();
+        UserSummaryDTO summary = u != null ? new UserSummaryDTO(u.getCpf(), u.getName(), u.getEmail()) : null;
+        return new SavingsAccountResponseDTO(a.getId(), a.getBalance(), a.getTransference(), a.getInvestment(), summary);
     }
 }

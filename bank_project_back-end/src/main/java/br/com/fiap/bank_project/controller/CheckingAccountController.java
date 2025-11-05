@@ -1,16 +1,21 @@
 package br.com.fiap.bank_project.controller;
 
+import br.com.fiap.bank_project.dto.checking.CheckingAccountCreateDTO;
+import br.com.fiap.bank_project.dto.checking.CheckingAccountResponseDTO;
+import br.com.fiap.bank_project.dto.checking.CheckingAccountUpdateDTO;
+import br.com.fiap.bank_project.dto.common.AmountDTO;
+import br.com.fiap.bank_project.dto.common.UserSummaryDTO;
 import br.com.fiap.bank_project.entity.CheckingAccount;
 import br.com.fiap.bank_project.entity.User;
 import br.com.fiap.bank_project.service.CheckingAccountService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -23,16 +28,29 @@ public class CheckingAccountController {
 
     @PostMapping()
     @ResponseStatus(CREATED)
-    public CheckingAccount create(@RequestBody CheckingAccount account) {
-        return service.save(account);
+    public CheckingAccountResponseDTO create(@Valid @RequestBody CheckingAccountCreateDTO dto) {
+        CheckingAccount account = new CheckingAccount();
+        User user = new User();
+        user.setCpf(dto.getUserCpf());
+        account.setUser(user);
+        // saldo inicial opcional
+        if (dto.getInitialBalance() != null && !dto.getInitialBalance().isBlank()) {
+            try {
+                account.setBalance(new BigDecimal(dto.getInitialBalance()));
+            } catch (NumberFormatException ignored) {}
+        }
+        CheckingAccount saved = service.save(account);
+        return toResponse(saved);
     }
-
 
     @PutMapping("/{cpf}")
     @ResponseStatus(OK)
-    public CheckingAccount update(@RequestBody CheckingAccount account,
+    public CheckingAccountResponseDTO update(@Valid @RequestBody CheckingAccountUpdateDTO dto,
                                   @PathVariable String cpf) {
-        return service.update(cpf,account);
+        CheckingAccount toUpdate = new CheckingAccount();
+        toUpdate.setBalance(dto.getBalance());
+        toUpdate.setExpense(dto.getExpense());
+        return toResponse(service.update(cpf, toUpdate));
     }
 
     @DeleteMapping("/{cpf}")
@@ -42,37 +60,41 @@ public class CheckingAccountController {
     }
 
     @GetMapping
-    public List<CheckingAccount> findAll(CheckingAccount account) {
-        return service.findAll(account);
+    public List<CheckingAccountResponseDTO> findAll() {
+        return service.findAll(new CheckingAccount()).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{cpf}")
     @ResponseStatus(OK)
-    public CheckingAccount findByCpf(@PathVariable String cpf) {
-        return service.findAccountByCpf(cpf);
+    public CheckingAccountResponseDTO findByCpf(@PathVariable String cpf) {
+        return toResponse(service.findAccountByCpf(cpf));
     }
 
     @PatchMapping("/{cpf}/withdraw")
     public ResponseEntity<String> withdraw(
             @PathVariable String cpf,
-            @RequestBody Map<String, BigDecimal> requestBody) {
+            @Valid @RequestBody AmountDTO body) {
 
-        BigDecimal value = requestBody.get("value");
+        service.withdraw(cpf, body.getValue());
 
-        service.withdraw(cpf, value);
-
-        return ResponseEntity.ok("Você retirou: " + value + "R$");
+        return ResponseEntity.ok("Você retirou: " + body.getValue() + "R$");
     }
 
     @PatchMapping("/{cpf}/deposit")
     public ResponseEntity<String> deposit(
             @PathVariable String cpf,
-            @RequestBody Map<String, BigDecimal> requestBody) {
+            @Valid @RequestBody AmountDTO body) {
 
-        BigDecimal value = requestBody.get("value");
+        service.deposit(cpf, body.getValue());
 
-        service.deposit(cpf, value);
+        return ResponseEntity.ok("Você depositou: " + body.getValue() + "R$");
+    }
 
-        return ResponseEntity.ok("Você depositou: " + value + "R$");
+    private CheckingAccountResponseDTO toResponse(CheckingAccount a) {
+        User u = a.getUser();
+        UserSummaryDTO summary = u != null ? new UserSummaryDTO(u.getCpf(), u.getName(), u.getEmail()) : null;
+        return new CheckingAccountResponseDTO(a.getId(), a.getBalance(), a.getExpense(), summary);
     }
 }
